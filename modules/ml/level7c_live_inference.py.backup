@@ -1,0 +1,585 @@
+#!/usr/bin/env python3
+"""
+Level 7-C: Live ML Inference
+Loads latest model and outputs ml_score and confidence to ranking DataFrame
+"""
+
+import pandas as pd
+import numpy as np
+import json
+import pickle
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
+import warnings
+warnings.filterwarnings('ignore')
+
+class MLPredictor:
+    """Live ML inference for strategy scoring"""
+    
+    def __init__(self, config: Dict = None):
+        self.config = config or {}
+        
+        # Directories
+        self.models_dir = Path("models")
+        self.features_dir = Path("data/features")
+        self.logs_dir = Path("logs")
+        
+        # Loaded model artifacts
+        self.model_artifacts = None
+        self.model_loaded = False
+        
+        # Prediction settings
+        self.prediction_config = self.config.get('ml_prediction', {
+            'confidence_method': 'prediction_interval',
+            'confidence_threshold': 0.1,
+            'score_normalization': 'min_max',
+            'score_range': [0, 100]
+        })
+    
+    def load_model(self, model_path: str = None) -> bool:
+        """Load trained ML model for inference"""
+        
+        if model_path:
+            model_file = Path(model_path)
+        else:
+            model_file = self.models_dir / "latest_model.pkl"
+        
+        if not model_file.exists():
+            print(f"❌ Model not found: {model_file}")
+            return False
+        
+        try:
+            with open(model_file, 'rb') as f:
+                self.model_artifacts = pickle.load(f)
+            
+            self.model_loaded = True
+            
+            print(f"✅ Model loaded: {self.model_artifacts['model_name']}")
+            print(f"   Test MAE: {self.model_artifacts['performance']['test_mae']:.3f}")
+            print(f"   Features: {len(self.model_artifacts['feature_names'])}")
+            print(f"   Trained: {self.model_artifacts['trained_at'][:19]}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error loading model: {e}")
+            self.model_loaded = False
+            return False
+    
+    def predict_strategy_performance(self, strategy: str, features: Dict = None) -> Dict:
+        """Predict performance for a specific strategy"""
+        
+        if not self.model_loaded:
+            if not self.load_model():
+                return {'error': 'No model available'}
+        
+        try:
+            # Get features for strategy
+            if features is None:
+                # Load latest features from feature engineering
+                from level7a_feature_engineering import FeatureEngineer
+                engineer = FeatureEngineer()
+                features = engineer.get_latest_features(strategy)
+            
+            # Prepare feature vector
+            feature_vector = self._prepare_feature_vector(features, strategy)
+            
+            if feature_vector is None:
+                return {'error': 'Failed to prepare features'}
+            
+            # Make prediction
+            prediction = self.model_artifacts['model'].predict([feature_vector])[0]
+            
+            # Calculate confidence
+            confidence = self._calculate_confidence(feature_vector, prediction)
+            
+            # Convert prediction to score
+            ml_score = self._prediction_to_score(prediction)
+            
+            result = {
+                'strategy': strategy,
+                'ml_prediction': float(prediction),
+                'ml_score': float(ml_score),
+                'ml_confidence': float(confidence),
+                'predicted_at': datetime.now(timezone.utc).isoformat(),
+                'model_name': self.model_artifacts['model_name'],
+                'features_used': len(feature_vector)
+            }
+            
+            print(f"🔮 {strategy}: prediction={prediction:.2f}, score={ml_score:.1f}, confidence={confidence:.3f}")
+            
+            return result
+            
+        except Exception as e:
+            print(f"❌ Prediction failed for {strategy}: {e}")
+            return {'error': str(e)}
+    
+    def _prepare_feature_vector(self, features: Dict, strategy: str) -> Optional[np.ndarray]:
+        """Prepare feature vector from raw features"""
+        
+        try:
+            model_features = self.model_artifacts['feature_names']
+            
+            # Create feature vector with correct ordering
+            feature_vector = []
+            
+            for feature_name in model_features:
+                if feature_name in features:
+                    feature_vector.append(features[feature_name])
+                elif feature_name.startswith('strategy_'):
+                    # Handle strategy dummy variables
+                    strategy_suffix = feature_name.replace('strategy_', '')
+                    value = 1.0 if strategy_suffix == strategy else 0.0
+                    feature_vector.append(value)
+                elif 'interaction' in feature_name or '_ma7' in feature_name or '_lag' in feature_name:
+                    # Handle derived features that might not be in raw features
+                    feature_vector.append(self._estimate_derived_feature(feature_name, features, strategy))
+                else:
+                    # Missing feature - use zero
+                    feature_vector.append(0.0)
+                    print(f"⚠️ Missing feature '{feature_name}', using 0.0")
+            
+            # Scale features
+            feature_vector = np.array(feature_vector).reshape(1, -1)
+            scaled_vector = self.model_artifacts['scaler'].transform(feature_vector)
+            
+            return scaled_vector[0]
+            
+        except Exception as e:
+            print(f"❌ Feature preparation failed: {e}")
+            return None
+    
+    def _estimate_derived_feature(self, feature_name: str, features: Dict, strategy: str) -> float:
+        """Estimate derived features that weren't pre-calculated"""
+        
+        # Interaction features
+        if 'sentiment_regime_interaction' in feature_name:
+            sentiment = features.get('sentiment_avg', 0)
+            regime_bull = features.get('regime_bull_pct', 0.33)
+            return sentiment * regime_bull
+        
+        elif 'pnl_trades_ratio' in feature_name:
+            pnl = features.get('kpi_gross_pnl', 0)
+            trades = features.get('kpi_total_trades', 1)
+            return pnl / (trades + 1)
+        
+        elif 'win_loss_ratio' in feature_name:
+            avg_win = features.get('kpi_avg_win', 5)
+            avg_loss = abs(features.get('kpi_avg_loss', -5))
+            return avg_win / (avg_loss + 1)
+        
+        elif 'econ_sentiment_interaction' in feature_name:
+            econ_impact = features.get('econ_high_impact_count', 0)
+            sentiment_neg = features.get('sentiment_negative_pct', 0.3)
+            return econ_impact * sentiment_neg
+        
+        elif 'risk_adjusted_pnl' in feature_name:
+            pnl = features.get('kpi_gross_pnl', 0)
+            trades = features.get('kpi_total_trades', 1)
+            avg_loss = abs(features.get('kpi_avg_loss', -5))
+            return pnl / (trades * avg_loss + 1)
+        
+        elif 'volatility_proxy' in feature_name:
+            sentiment_std = features.get('sentiment_std', 0.2)
+            regime_conf = features.get('regime_avg_confidence', 0.5)
+            return sentiment_std + regime_conf
+        
+        # Day of week features
+        elif 'day_of_week' in feature_name:
+            return datetime.now().weekday()
+        
+        elif 'is_weekend' in feature_name:
+            return 1.0 if datetime.now().weekday() >= 5 else 0.0
+        
+        elif 'is_month_end' in feature_name:
+            return 1.0 if datetime.now().day >= 28 else 0.0
+        
+        elif 'month' in feature_name:
+            return datetime.now().month
+        
+        # Moving averages and lags - use current value as approximation
+        elif '_ma7' in feature_name or '_lag' in feature_name:
+            base_feature = feature_name.split('_ma7')[0].split('_lag')[0]
+            return features.get(base_feature, 0)
+        
+        else:
+            return 0.0
+    
+    def _calculate_confidence(self, feature_vector: np.ndarray, prediction: float) -> float:
+        """Calculate prediction confidence"""
+        
+        method = self.prediction_config['confidence_method']
+        
+        if method == 'prediction_interval':
+            # Use model uncertainty (simplified)
+            if hasattr(self.model_artifacts['model'], 'estimators_'):
+                # For ensemble methods, use prediction variance
+                try:
+                    estimators = self.model_artifacts['model'].estimators_
+                    predictions = [est.predict([feature_vector])[0] for est in estimators[:10]]
+                    prediction_std = np.std(predictions)
+                    
+                    # Higher std = lower confidence
+                    confidence = max(0.1, 1.0 - prediction_std / 20.0)
+                    return min(confidence, 0.95)
+                except:
+                    pass
+            
+            # Fallback: distance from training mean
+            training_mae = self.model_artifacts['performance']['test_mae']
+            relative_error = abs(prediction) / (training_mae + 1)
+            confidence = max(0.1, 1.0 - relative_error / 10.0)
+            return min(confidence, 0.95)
+        
+        elif method == 'feature_coverage':
+            # Confidence based on how well features match training data
+            # This is simplified - in practice would use training data statistics
+            return np.random.uniform(0.6, 0.9)
+        
+        else:
+            # Default confidence
+            return 0.75
+    
+    def _prediction_to_score(self, prediction: float) -> float:
+        """Convert raw prediction to normalized score"""
+        
+        normalization = self.prediction_config['score_normalization']
+        score_range = self.prediction_config['score_range']
+        
+        if normalization == 'min_max':
+            # Assume prediction range of -50 to +50 for P&L
+            pred_min, pred_max = -50, 50
+            
+            # Clamp prediction to expected range
+            prediction = max(pred_min, min(pred_max, prediction))
+            
+            # Normalize to 0-1
+            normalized = (prediction - pred_min) / (pred_max - pred_min)
+            
+            # Scale to score range
+            score = score_range[0] + normalized * (score_range[1] - score_range[0])
+            
+        elif normalization == 'sigmoid':
+            # Sigmoid transformation
+            sigmoid_pred = 1 / (1 + np.exp(-prediction / 10))
+            score = score_range[0] + sigmoid_pred * (score_range[1] - score_range[0])
+        
+        else:
+            # Linear mapping
+            score = max(score_range[0], min(score_range[1], prediction + 50))
+        
+        return score
+    
+    def predict_all_strategies(self, strategies: List[str] = None) -> pd.DataFrame:
+        """Predict scores for all strategies and return ranking DataFrame"""
+        
+        if strategies is None:
+            strategies = ['martingale', 'breakout', 'mean_reversion']
+        
+        print(f"🔮 Generating ML predictions for {len(strategies)} strategies")
+        
+        predictions = []
+        
+        for strategy in strategies:
+            result = self.predict_strategy_performance(strategy)
+            
+            if 'error' not in result:
+                predictions.append({
+                    'strategy': strategy,
+                    'ml_score': result['ml_score'],
+                    'ml_confidence': result['ml_confidence'],
+                    'ml_prediction': result['ml_prediction'],
+                    'predicted_at': result['predicted_at']
+                })
+            else:
+                print(f"⚠️ Prediction failed for {strategy}: {result['error']}")
+                # Add fallback prediction
+                predictions.append({
+                    'strategy': strategy,
+                    'ml_score': 50.0,  # Neutral score
+                    'ml_confidence': 0.1,  # Low confidence
+                    'ml_prediction': 0.0,
+                    'predicted_at': datetime.now(timezone.utc).isoformat(),
+                    'error': result['error']
+                })
+        
+        # Create DataFrame
+        df = pd.DataFrame(predictions)
+        
+        # Sort by ML score
+        df = df.sort_values('ml_score', ascending=False).reset_index(drop=True)
+        
+        print(f"✅ ML predictions complete")
+        
+        # Display results
+        print(f"\n🏆 ML Strategy Rankings:")
+        for i, row in df.iterrows():
+            confidence_star = "⭐" if row['ml_confidence'] > 0.8 else "🔸" if row['ml_confidence'] > 0.6 else "🔹"
+            print(f"   {i+1}. {row['strategy']}: {row['ml_score']:.1f} {confidence_star} (conf: {row['ml_confidence']:.2f})")
+        
+        return df
+    
+    def save_predictions(self, predictions_df: pd.DataFrame, filename: str = None) -> str:
+        """Save predictions to file for use by hybrid ranking"""
+        
+        if filename is None:
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            filename = f"ml_predictions_{timestamp}.json"
+        
+        output_file = self.logs_dir / filename
+        
+        # Convert to records for JSON serialization
+        predictions_data = {
+            'predictions': predictions_df.to_dict('records'),
+            'generated_at': datetime.now(timezone.utc).isoformat(),
+            'model_info': {
+                'model_name': self.model_artifacts['model_name'] if self.model_loaded else 'unknown',
+                'model_performance': self.model_artifacts['performance'] if self.model_loaded else {}
+            }
+        }
+        
+        with open(output_file, 'w') as f:
+            json.dump(predictions_data, f, indent=2)
+        
+        # Also save as latest
+        latest_file = self.logs_dir / "latest_ml_predictions.json"
+        with open(latest_file, 'w') as f:
+            json.dump(predictions_data, f, indent=2)
+        
+        print(f"💾 Predictions saved: {output_file.name}")
+        
+        return str(output_file)
+    
+    def get_prediction_history(self, days: int = 7) -> List[Dict]:
+        """Get historical predictions for analysis"""
+        
+        prediction_files = list(self.logs_dir.glob("ml_predictions_*.json"))
+        
+        # Sort by modification time, most recent first
+        prediction_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+        
+                        history = []
+        
+        for pred_file in prediction_files[:days]:  # Last N files
+            try:
+                with open(pred_file) as f:
+                    data = json.load(f)
+                
+                history.append({
+                    'file': pred_file.name,
+                    'generated_at': data.get('generated_at'),
+                    'predictions': data.get('predictions', []),
+                    'model_name': data.get('model_info', {}).get('model_name')
+                })
+                
+            except Exception as e:
+                print(f"⚠️ Error reading {pred_file}: {e}")
+        
+        return history
+    
+    def validate_model_performance(self, actual_results: Dict[str, float]) -> Dict:
+        """Validate recent predictions against actual results"""
+        
+        if not self.model_loaded:
+            return {'error': 'No model loaded'}
+        
+        # Get latest predictions
+        latest_file = self.logs_dir / "latest_ml_predictions.json"
+        
+        if not latest_file.exists():
+            return {'error': 'No recent predictions found'}
+        
+        try:
+            with open(latest_file) as f:
+                pred_data = json.load(f)
+            
+            predictions = pred_data['predictions']
+            
+            # Calculate validation metrics
+            errors = []
+            strategy_errors = {}
+            
+            for pred in predictions:
+                strategy = pred['strategy']
+                predicted = pred['ml_prediction']
+                
+                if strategy in actual_results:
+                    actual = actual_results[strategy]
+                    error = abs(predicted - actual)
+                    errors.append(error)
+                    strategy_errors[strategy] = {
+                        'predicted': predicted,
+                        'actual': actual,
+                        'error': error,
+                        'confidence': pred['ml_confidence']
+                    }
+            
+            if errors:
+                validation = {
+                    'mean_absolute_error': np.mean(errors),
+                    'max_error': np.max(errors),
+                    'strategy_errors': strategy_errors,
+                    'predictions_count': len(errors),
+                    'validated_at': datetime.now(timezone.utc).isoformat()
+                }
+                
+                print(f"📊 Model Validation:")
+                print(f"   MAE: {validation['mean_absolute_error']:.3f}")
+                print(f"   Max Error: {validation['max_error']:.3f}")
+                print(f"   Strategies: {len(strategy_errors)}")
+                
+                return validation
+            else:
+                return {'error': 'No matching predictions and actual results'}
+                
+        except Exception as e:
+            return {'error': f'Validation failed: {e}'}
+
+class MLInferenceDemo:
+    """Demo class for testing ML inference"""
+    
+    def __init__(self):
+        self.predictor = MLPredictor()
+    
+    def run_inference_demo(self):
+        """Run complete inference demo"""
+        
+        print("🔮 ML Live Inference Demo (Level 7-C)")
+        print("=" * 50)
+        
+        # Load model
+        if not self.predictor.load_model():
+            print("❌ No model available - run Level 7-B first")
+            return False
+        
+        # Generate predictions for all strategies
+        predictions_df = self.predictor.predict_all_strategies()
+        
+        # Save predictions
+        pred_file = self.predictor.save_predictions(predictions_df)
+        
+        # Show feature importance from model
+        if self.predictor.model_artifacts and 'feature_importance' in self.predictor.model_artifacts:
+            self._show_feature_importance()
+        
+        # Demo validation with simulated actual results
+        self._demo_validation()
+        
+        print(f"\n✅ Level 7-C Complete!")
+        print(f"🔮 ML predictions generated and saved")
+        print(f"📊 Ready for Level 7-D: Hybrid Ranking")
+        
+        return True
+    
+    def _show_feature_importance(self):
+        """Display top features from the model"""
+        
+        importance = self.predictor.model_artifacts.get('feature_importance', {})
+        
+        if importance:
+            # Sort by importance
+            sorted_features = sorted(importance.items(), key=lambda x: x[1], reverse=True)
+            
+            print(f"\n🎯 Top 5 Most Important Features:")
+            for i, (feature, imp) in enumerate(sorted_features[:5], 1):
+                print(f"   {i}. {feature}: {imp:.3f}")
+    
+    def _demo_validation(self):
+        """Demo model validation with simulated results"""
+        
+        print(f"\n🧪 Demo Model Validation:")
+        
+        # Simulate actual strategy results
+        simulated_results = {
+            'martingale': np.random.normal(-5, 15),
+            'breakout': np.random.normal(8, 20),
+            'mean_reversion': np.random.normal(3, 10)
+        }
+        
+        print(f"   Simulated actual results:")
+        for strategy, result in simulated_results.items():
+            print(f"     {strategy}: {result:.2f}")
+        
+        # Validate predictions
+        validation = self.predictor.validate_model_performance(simulated_results)
+        
+        if 'error' not in validation:
+            print(f"   Validation MAE: {validation['mean_absolute_error']:.3f}")
+        else:
+            print(f"   Validation error: {validation['error']}")
+
+def main():
+    """Command line interface for ML inference"""
+    
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="ML Live Inference (Level 7-C)")
+    parser.add_argument('--strategy', help='Predict for specific strategy')
+    parser.add_argument('--all', action='store_true', help='Predict for all strategies')
+    parser.add_argument('--model', help='Path to specific model file')
+    parser.add_argument('--demo', action='store_true', help='Run complete demo')
+    parser.add_argument('--validate', help='Validate with actual results (JSON file)')
+    parser.add_argument('--history', type=int, default=7, help='Show prediction history (days)')
+    
+    args = parser.parse_args()
+    
+    print("🔮 ML Live Inference System (Level 7-C)")
+    print("=" * 50)
+    
+    predictor = MLPredictor()
+    
+    if args.demo:
+        # Run complete demo
+        demo = MLInferenceDemo()
+        success = demo.run_inference_demo()
+        return
+    
+    # Load model
+    if not predictor.load_model(args.model):
+        print("❌ Failed to load model")
+        return
+    
+    if args.history > 0:
+        # Show prediction history
+        history = predictor.get_prediction_history(args.history)
+        print(f"\n📜 Recent Predictions ({len(history)} files):")
+        for h in history:
+            print(f"   {h['file']}: {len(h['predictions'])} predictions ({h['model_name']})")
+    
+    if args.validate:
+        # Validate against actual results
+        try:
+            with open(args.validate) as f:
+                actual_results = json.load(f)
+            
+            validation = predictor.validate_model_performance(actual_results)
+            if 'error' not in validation:
+                print(f"✅ Validation complete: MAE = {validation['mean_absolute_error']:.3f}")
+            else:
+                print(f"❌ Validation failed: {validation['error']}")
+        except Exception as e:
+            print(f"❌ Error loading validation data: {e}")
+    
+    elif args.strategy:
+        # Single strategy prediction
+        result = predictor.predict_strategy_performance(args.strategy)
+        if 'error' not in result:
+            print(f"✅ Prediction for {args.strategy}:")
+            print(f"   ML Score: {result['ml_score']:.1f}")
+            print(f"   Confidence: {result['ml_confidence']:.3f}")
+            print(f"   Raw Prediction: {result['ml_prediction']:.2f}")
+        else:
+            print(f"❌ Prediction failed: {result['error']}")
+    
+    elif args.all:
+        # All strategies prediction
+        predictions_df = predictor.predict_all_strategies()
+        pred_file = predictor.save_predictions(predictions_df)
+        print(f"✅ Predictions saved to {Path(pred_file).name}")
+    
+    else:
+        print("💡 Use --demo for complete demo, --all for all strategies, or --strategy <name> for single prediction")
+
+if __name__ == "__main__":
+    main()

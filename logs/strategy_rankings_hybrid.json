@@ -1,0 +1,33 @@
+{
+  "generated_at": "2025-06-06T04:14:10.554342+00:00",
+  "rankings": [
+    {
+      "strategy": "breakout",
+      "hybrid_score": 54.66,
+      "rule_score": 54.66,
+      "ml_score": 50.0,
+      "ml_confidence": 0.1,
+      "rank": 1
+    },
+    {
+      "strategy": "mean_reversion",
+      "hybrid_score": 37.23,
+      "rule_score": 37.23,
+      "ml_score": 50.0,
+      "ml_confidence": 0.1,
+      "rank": 2
+    },
+    {
+      "strategy": "martingale",
+      "hybrid_score": 33.6,
+      "rule_score": 33.6,
+      "ml_score": 50.0,
+      "ml_confidence": 0.1,
+      "rank": 3
+    }
+  ],
+  "weights": {
+    "rule_weight": 0.5,
+    "ml_weight": 0.5
+  }
+}

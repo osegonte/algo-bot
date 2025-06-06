@@ -1,0 +1,34 @@
+{
+  "predictions": [
+    {
+      "strategy": "breakout",
+      "ml_score": 58.45260000000001,
+      "ml_confidence": 0.1,
+      "ml_prediction": 8.452600000000011,
+      "predicted_at": "2025-06-06T11:08:13.741636+00:00"
+    },
+    {
+      "strategy": "martingale",
+      "ml_score": 48.3823,
+      "ml_confidence": 0.5887438267940528,
+      "ml_prediction": -1.6177,
+      "predicted_at": "2025-06-06T11:08:13.724789+00:00"
+    },
+    {
+      "strategy": "mean_reversion",
+      "ml_score": 44.901775,
+      "ml_confidence": 0.6635249303440149,
+      "ml_prediction": -5.0982249999999985,
+      "predicted_at": "2025-06-06T11:08:13.756379+00:00"
+    }
+  ],
+  "generated_at": "2025-06-06T11:08:13.757852+00:00",
+  "model_info": {
+    "model_name": "random_forest",
+    "model_performance": {
+      "test_mae": 11.239697698412698,
+      "test_r2": -0.08061595981627101,
+      "cv_mae": 13.429619648962149
+    }
+  }
+}
