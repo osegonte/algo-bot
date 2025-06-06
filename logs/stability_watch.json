@@ -1,2 +1,4 @@
 {"timestamp": "2025-06-06T12:54:33.653712+00:00", "total_latency_ms": 150.0, "max_latency_ms": 50.0, "avg_latency_ms": 35.0, "alerts_triggered": []}
 {"timestamp": "2025-06-06T12:55:20.006079+00:00", "total_latency_ms": 150.0, "max_latency_ms": 50.0, "avg_latency_ms": 35.0, "alerts_triggered": []}
+{"timestamp": "2025-06-06T21:52:56.283189+00:00", "total_latency_ms": 150.0, "max_latency_ms": 50.0, "avg_latency_ms": 35.0, "alerts_triggered": []}
+{"timestamp": "2025-06-06T21:54:07.693164+00:00", "total_latency_ms": 150.0, "max_latency_ms": 50.0, "avg_latency_ms": 35.0, "alerts_triggered": []}
