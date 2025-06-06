@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 import subprocess
 import threading
-import psutil
 import logging
 
 class BurnInTestManager:
@@ -32,7 +31,6 @@ class BurnInTestManager:
         
         # System processes
         self.processes = {}
-        self.process_health = {}
         
         # Monitoring intervals
         self.health_check_interval = 300  # 5 minutes
@@ -70,7 +68,7 @@ class BurnInTestManager:
         sys.exit(0)
     
     async def start_burn_in_test(self, quick_test: bool = False) -> bool:
-        """Start the comprehensive 24-hour burn-in test"""
+        """Start the comprehensive burn-in test"""
         
         if quick_test:
             self.test_duration_hours = 0.5  # 30 minutes for quick test
@@ -125,17 +123,17 @@ class BurnInTestManager:
         components = [
             {
                 "name": "api_server",
-                "command": [sys.executable, "level8b_kpi_endpoint.py", "--host", "127.0.0.1", "--port", "8000"],
+                "command": [sys.executable, "modules/monitoring/kpi_endpoint.py", "--host", "127.0.0.1", "--port", "8000"],
                 "required": True
             },
             {
                 "name": "alert_hub_daemon",
-                "command": [sys.executable, "level8a_unified_alerts.py", "--daemon", "--interval", "300"],
+                "command": [sys.executable, "unified_alert_hub.py", "--daemon", "--interval", "300"],
                 "required": True
             },
             {
                 "name": "stability_watch",
-                "command": [sys.executable, "level8d_stability_watch.py", "--daemon", "--interval", "60"],
+                "command": [sys.executable, "stability_watch.py", "--daemon", "--interval", "60"],
                 "required": True
             }
         ]
@@ -189,6 +187,67 @@ class BurnInTestManager:
         
         while time.time() - start_time < timeout:
             try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get("http://127.0.0.1:8000/health") as response:
+                        if response.status == 200:
+                            self.logger.info("✅ API server is ready")
+                            return
+            except:
+                pass
+            
+            await asyncio.sleep(1)
+        
+        raise Exception("API server failed to become ready")
+    
+    async def _run_monitoring_loops(self):
+        """Run all monitoring loops during the test"""
+        self.logger.info(f"🔄 Starting monitoring loops for {self.test_duration_hours}h...")
+        
+        # Create monitoring tasks
+        tasks = [
+            asyncio.create_task(self._process_health_monitor()),
+            asyncio.create_task(self._system_health_monitor()),
+            asyncio.create_task(self._alert_monitor()),
+            asyncio.create_task(self._milestone_tracker()),
+            asyncio.create_task(self._test_timer())
+        ]
+        
+        # Wait for test duration or until all tasks complete
+        try:
+            await asyncio.gather(*tasks)
+        except asyncio.CancelledError:
+            self.logger.info("Monitoring loops cancelled")
+        
+        # Cancel any remaining tasks
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+    
+    async def _process_health_monitor(self):
+        """Monitor process health and restart if needed"""
+        while self.is_running:
+            try:
+                for name, info in self.processes.items():
+                    process = info["process"]
+                    
+                    # Check if process is still running
+                    if process.poll() is not None:
+                        self.logger.warning(f"⚠️ Process {name} has stopped")
+                        self.test_results["crashes_detected"] += 1
+                
+                await asyncio.sleep(self.process_check_interval)
+                
+            except Exception as e:
+                self.logger.error(f"Process health monitor error: {e}")
+                await asyncio.sleep(self.process_check_interval)
+    
+    async def _system_health_monitor(self):
+        """Monitor overall system health"""
+        while self.is_running:
+            try:
+                # Make health check API call
+                import aiohttp
+                
                 async with aiohttp.ClientSession() as session:
                     async with session.get("http://127.0.0.1:8000/health") as response:
                         if response.status == 200:
@@ -481,81 +540,4 @@ async def main():
         exit(1)
 
 if __name__ == "__main__":
-    asyncio.run(main()) session.get("http://127.0.0.1:8000/health") as response:
-                        if response.status == 200:
-                            self.logger.info("✅ API server is ready")
-                            return
-            except:
-                pass
-            
-            await asyncio.sleep(1)
-        
-        raise Exception("API server failed to become ready")
-    
-    async def _run_monitoring_loops(self):
-        """Run all monitoring loops during the test"""
-        self.logger.info(f"🔄 Starting monitoring loops for {self.test_duration_hours}h...")
-        
-        # Create monitoring tasks
-        tasks = [
-            asyncio.create_task(self._process_health_monitor()),
-            asyncio.create_task(self._system_health_monitor()),
-            asyncio.create_task(self._alert_monitor()),
-            asyncio.create_task(self._milestone_tracker()),
-            asyncio.create_task(self._test_timer())
-        ]
-        
-        # Wait for test duration or until all tasks complete
-        try:
-            await asyncio.gather(*tasks)
-        except asyncio.CancelledError:
-            self.logger.info("Monitoring loops cancelled")
-        
-        # Cancel any remaining tasks
-        for task in tasks:
-            if not task.done():
-                task.cancel()
-    
-    async def _process_health_monitor(self):
-        """Monitor process health and restart if needed"""
-        while self.is_running:
-            try:
-                for name, info in self.processes.items():
-                    process = info["process"]
-                    
-                    # Check if process is still running
-                    if process.poll() is not None:
-                        self.logger.warning(f"⚠️ Process {name} has stopped")
-                        self.test_results["crashes_detected"] += 1
-                        
-                        # Restart if required
-                        if info["required"] and info["restart_count"] < 3:
-                            self.logger.info(f"🔄 Restarting {name}...")
-                            # Implementation would restart the process here
-                            info["restart_count"] += 1
-                    
-                    # Check memory usage
-                    try:
-                        proc = psutil.Process(process.pid)
-                        memory_mb = proc.memory_info().rss / 1024 / 1024
-                        
-                        if memory_mb > 500:  # 500MB threshold
-                            self.logger.warning(f"⚠️ High memory usage in {name}: {memory_mb:.1f}MB")
-                    except psutil.NoSuchProcess:
-                        pass
-                
-                await asyncio.sleep(self.process_check_interval)
-                
-            except Exception as e:
-                self.logger.error(f"Process health monitor error: {e}")
-                await asyncio.sleep(self.process_check_interval)
-    
-    async def _system_health_monitor(self):
-        """Monitor overall system health"""
-        while self.is_running:
-            try:
-                # Make health check API call
-                import aiohttp
-                
-                async with aiohttp.ClientSession() as session:
-                    async with
+    asyncio.run(main())

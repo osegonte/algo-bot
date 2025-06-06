@@ -1,0 +1,15 @@
+{
+  "stage": 3,
+  "name": "Central Intelligence & Sync",
+  "completed_at": "2025-06-06T12:55:31.502292+00:00",
+  "burn_in_test": {
+    "test_passed": true
+  },
+  "levels_completed": [
+    5,
+    6,
+    7,
+    8
+  ],
+  "ready_for_stage_4": true
+}

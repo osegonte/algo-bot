@@ -35,25 +35,11 @@ def test_level_8_complete():
     print("\n🔔 Testing 8-A: Unified Alert Hub")
     print("-" * 40)
     try:
-        # Create test config
-        config_dir = Path("config")
-        config_dir.mkdir(exist_ok=True)
+        # Add current directory to Python path
+        current_dir = Path.cwd()
+        sys.path.insert(0, str(current_dir))
         
-        test_config = {
-            "alerts": {
-                "telegram_token": "test_token",
-                "telegram_chat_id": "test_chat_id",
-                "slack_webhook": "https://example.com/slack"
-            }
-        }
-        
-        import yaml
-        with open(config_dir / "base_config.yaml", "w") as f:
-            yaml.dump(test_config, f)
-        
-        # Test alert hub functionality
-        sys.path.append(str(Path.cwd()))
-        from level8a_unified_alerts import UnifiedAlertHub
+        from unified_alert_hub import UnifiedAlertHub
         
         hub = UnifiedAlertHub()
         
@@ -94,7 +80,7 @@ def test_level_8_complete():
     try:
         print("🚀 Starting API server...")
         api_process = subprocess.Popen([
-            sys.executable, "level8b_kpi_endpoint.py",
+            sys.executable, "modules/monitoring/kpi_endpoint.py",
             "--host", "127.0.0.1", "--port", "8001"  # Use different port for test
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
@@ -158,32 +144,8 @@ def test_level_8_complete():
     print("-" * 40)
     try:
         # Check if dashboard HTML file exists and is valid
-        dashboard_content = """<!DOCTYPE html>
-<html><head><title>Trading Bot Dashboard</title></head>
-<body>
-<div class="dashboard">
-    <h1>Trading Bot Dashboard</h1>
-    <div id="mainGrid"></div>
-</div>
-<script>
-class TradingDashboard {
-    constructor() {
-        this.apiUrl = 'http://127.0.0.1:8000';
-        this.refreshInterval = 30000;
-    }
-    async loadData() {
-        // Dashboard polling logic
-    }
-}
-</script>
-</body></html>"""
+        dashboard_file = Path("web/dashboard.html")
         
-        # Save dashboard file
-        dashboard_file = Path("level8c_mini_dashboard.html")
-        with open(dashboard_file, "w") as f:
-            f.write(dashboard_content)
-        
-        # Verify dashboard structure
         if dashboard_file.exists():
             content = dashboard_file.read_text()
             
@@ -213,7 +175,7 @@ class TradingDashboard {
     print("\n👁️ Testing 8-D: Stability Watch")
     print("-" * 40)
     try:
-        from level8d_stability_watch import StabilityWatcher
+        from stability_watch import StabilityWatcher
         
         watcher = StabilityWatcher()
         
@@ -244,7 +206,7 @@ class TradingDashboard {
     print("\n🔥 Testing 8-E: 24h Burn-In Readiness")
     print("-" * 40)
     try:
-        from level8e_burn_in_test import BurnInTestManager
+        from burn_in_test import BurnInTestManager
         
         # Test burn-in manager initialization
         manager = BurnInTestManager(test_duration_hours=0.01)  # 36 seconds for test
@@ -306,8 +268,8 @@ class TradingDashboard {
         print("📊 Alert & Monitoring Upgrade fully operational!")
         print("🏆 STAGE 3 READY FOR COMPLETION!")
         print("\n🔥 Ready to run 24h burn-in test:")
-        print("   python level8e_burn_in_test.py --duration 24")
-        print("   python level8e_burn_in_test.py --quick  # 30min test")
+        print("   python burn_in_test.py --duration 24")
+        print("   python burn_in_test.py --quick  # 30min test")
         
         # Create completion marker
         completion_status = {

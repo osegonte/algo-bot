@@ -484,9 +484,9 @@ def main():
     else:
         print("💡 Use --test, --monitor, --history, or --daemon")
         print("   Examples:")
-        print("   python level8a_unified_alerts.py --test")
-        print("   python level8a_unified_alerts.py --monitor")
-        print("   python level8a_unified_alerts.py --daemon --interval 300")
+        print("   python unified_alert_hub.py --test")
+        print("   python unified_alert_hub.py --monitor")
+        print("   python unified_alert_hub.py --daemon --interval 300")
 
 if __name__ == "__main__":
     main()
