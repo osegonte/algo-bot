@@ -1,0 +1,83 @@
+{
+  "timestamp": "2025-06-06T03:30:54.657956+00:00",
+  "detection_date": "2025-06-06",
+  "parameters": {
+    "sma_short": 50,
+    "sma_long": 200,
+    "atr_period": 14,
+    "lookback_days": 30
+  },
+  "symbols": {
+    "AAPL": {
+      "symbol": "AAPL",
+      "regime": "bull",
+      "confidence": 0.85,
+      "price": 190.25,
+      "sma_50": 185.3,
+      "sma_200": 175.5,
+      "sma_50_slope": 0.002,
+      "sma_200_slope": 0.001,
+      "atr_percentile": 45.2,
+      "analysis_date": "2025-06-06",
+      "data_points": 250
+    },
+    "TSLA": {
+      "symbol": "TSLA",
+      "regime": "bear",
+      "confidence": 0.72,
+      "price": 245.8,
+      "sma_50": 255.2,
+      "sma_200": 265.1,
+      "sma_50_slope": -0.003,
+      "sma_200_slope": -0.001,
+      "atr_percentile": 78.5,
+      "analysis_date": "2025-06-06",
+      "data_points": 250
+    },
+    "MSFT": {
+      "symbol": "MSFT",
+      "regime": "range",
+      "confidence": 0.68,
+      "price": 425.3,
+      "sma_50": 423.8,
+      "sma_200": 420.15,
+      "sma_50_slope": 0.0001,
+      "sma_200_slope": 0.0,
+      "atr_percentile": 25.3,
+      "analysis_date": "2025-06-06",
+      "data_points": 250
+    },
+    "EURUSD": {
+      "symbol": "EURUSD",
+      "regime": "range",
+      "confidence": 0.64,
+      "price": 1.0525,
+      "sma_50": 1.052,
+      "sma_200": 1.0515,
+      "sma_50_slope": 0.0001,
+      "sma_200_slope": 0.0,
+      "atr_percentile": 30.1,
+      "analysis_date": "2025-06-06",
+      "data_points": 250
+    }
+  },
+  "summary": {
+    "total_symbols": 4,
+    "bull_count": 1,
+    "bear_count": 1,
+    "range_count": 2,
+    "error_count": 0,
+    "insufficient_data_count": 0,
+    "avg_confidence": 0.72,
+    "bull_symbols": [
+      "AAPL"
+    ],
+    "bear_symbols": [
+      "TSLA"
+    ],
+    "range_symbols": [
+      "MSFT",
+      "EURUSD"
+    ]
+  }
+}

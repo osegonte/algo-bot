@@ -1,0 +1,1 @@
+{"timestamp": "2025-06-06T03:30:54.695841+00:00", "child_id": "trader_001", "action": "intel_updated", "intel_updated": true, "bundle_checksum": "test_checksum_12345", "bundle_source": "local:bundles/intel_bundle.zip", "files_updated": ["news_sentiment.csv", "econ_calendar.json", "market_regime.json"], "update_count": 3}

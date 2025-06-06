@@ -1,0 +1,22 @@
+{
+  "level": 6,
+  "name": "Intelligence Bundle",
+  "completed_at": "2025-06-06T03:30:55.092887+00:00",
+  "score": "6/6",
+  "score_percent": 100.0,
+  "tests_passed": {
+    "6A_news_sentiment": true,
+    "6B_economic_calendar": true,
+    "6C_regime_detector": true,
+    "6D_intel_bundle_packager": true,
+    "6E_child_fetch_log": true,
+    "6F_parent_awareness": true
+  },
+  "ready_for_next_level": true,
+  "intelligence_files_created": [
+    "intel/news_sentiment.csv",
+    "intel/econ_calendar.json",
+    "intel/market_regime.json",
+    "bundles/intel_bundle.zip"
+  ]
+}
