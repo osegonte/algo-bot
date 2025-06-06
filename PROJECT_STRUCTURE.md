@@ -1,68 +1,69 @@
-# Trading Bot Project Structure
+# Trading Bot Project Structure (Post-Cleanup)
 
-## Core Components
+## 📁 Core Directories
+
 ```
-core/
-├── trading_engine.py          # Basic trading execution
-├── enhanced_trading_engine.py # Level 5 live data integration
-├── parent_controller.py       # Basic parent analysis
-├── enhanced_parent_controller.py # Level 5 enhanced P&L
-└── config_loader.py          # Configuration management
-
-modules/
-├── ai/                       # Strategy scoring & ML
-│   ├── deepseek_start.py     # Rule-based scoring (Level 1)
-│   └── strategy_recommender.py # Config generation (Level 2)
-├── intelligence/             # Market intelligence (Level 6)
-│   ├── news_sentiment_scraper.py
-│   ├── economic_calendar_ingest.py
-│   ├── regime_detector.py
-│   ├── intel_bundle_packager.py
-│   └── intel_fetcher.py
-├── market_data/              # Live data (Level 5)
-│   ├── gateway.py
-│   ├── stream_manager.py
-│   └── failover_manager.py
-├── ml/                       # Machine learning (Level 7)
-│   ├── level7a_feature_engineering.py
-│   ├── level7b_baseline_model.py
-│   ├── level7c_live_inference.py
-│   └── level7d_hybrid_ranking.py
-├── alerts/                   # Level 8 alerts
-│   └── unified_alert_hub.py
-├── monitoring/               # Level 8 monitoring
-│   ├── kpi_endpoint.py
-│   └── stability_watch.py
-└── sync/                     # Parent-child sync (Level 3)
-    ├── report_uploader.py
-    └── update_fetcher.py
-
-config/                       # Configuration files
-logs/                        # All log outputs
-intel/                       # Intelligence data
-data/                        # ML features & models
-web/                         # Dashboard & UI
-scripts/                     # Utility scripts
+trading-bot/
+├── core/                     # Core trading logic
+│   ├── trading_engine.py
+│   ├── enhanced_trading_engine.py
+│   ├── parent_controller.py
+│   ├── enhanced_parent_controller.py
+│   └── config_loader.py
+├── modules/                  # Modular components
+│   ├── ai/                   # Strategy AI & recommendations
+│   ├── alerts/               # Alert system
+│   ├── intelligence/         # Market intelligence
+│   ├── market_data/          # Data gateways & streaming
+│   ├── ml/                   # Machine learning pipeline
+│   ├── monitoring/           # System monitoring
+│   └── sync/                 # Parent-child sync
+├── config/                   # Configuration files
+├── data/                     # Data storage
+│   ├── features/            # ML features
+│   ├── historical/          # Historical market data
+│   └── cache/               # Cached data
+├── logs/                     # System logs
+├── models/                   # ML models
+├── scripts/                  # Utility scripts
+├── web/                      # Dashboard & UI
+└── tests/                    # Test suites
 ```
 
-## Level 8 Components
-- **8-A**: Unified Alert Hub (`modules/alerts/unified_alert_hub.py`)
-- **8-B**: Live KPI Endpoint (`modules/monitoring/kpi_endpoint.py`)
-- **8-C**: Mini Dashboard (`web/dashboard.html`)
-- **8-D**: Stability Watch (`modules/monitoring/stability_watch.py`)
-- **8-E**: 24h Burn-In Test (`scripts/burn_in_test.py`)
+## 🎯 Key Files
 
-## Quick Start
+- `run_trading_bot.py` - Main entry point
+- `stage3_complete.json` - Completion status
+- `test_suite_consolidated.py` - Unified test runner
+- `requirements.txt` - Dependencies
+- `init_project.sh` - Project setup
+
+## 🧪 Testing
+
+Run tests with:
 ```bash
-# Test Level 8 components
-python scripts/run_level8.py test_complete
-
-# Run individual components
-python scripts/run_level8.py alert_hub --args --test
-python scripts/run_level8.py kpi_endpoint --args --port 8000
-python scripts/run_level8.py stability_watch --args --check
-
-# Start dashboard
-python -m http.server 8080
-# Then open: http://localhost:8080/web/dashboard.html
+python test_suite_consolidated.py all     # All tests
+python test_suite_consolidated.py level8  # Specific level
 ```
+
+## 🏃‍♂️ Quick Start
+
+```bash
+# Setup
+bash init_project.sh
+
+# Configure
+edit config/base_config.yaml
+
+# Run child bot
+python run_trading_bot.py --mode child
+
+# Run parent analysis  
+python run_trading_bot.py --mode parent
+```
+
+## 📈 Status
+
+- ✅ Stage 2 Complete (Levels 0-4)
+- ✅ Stage 3 Complete (Levels 5-8) 
+- 🎯 Ready for production optimization
