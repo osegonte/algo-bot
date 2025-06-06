@@ -1,0 +1,18 @@
+{
+  "generated_at": "2025-06-06T01:13:36.588339+00:00",
+  "kpis": {
+    "gross_pnl": 3.93,
+    "win_rate": 62.5,
+    "profit_factor": 1.12,
+    "sharpe_ratio": 0.05,
+    "total_trades": 8,
+    "winning_trades": 5,
+    "losing_trades": 3,
+    "avg_win": 7.22,
+    "avg_loss": -10.72
+  },
+  "metadata": {
+    "total_raw_trades": 3,
+    "completed_trades": 8
+  }
+}

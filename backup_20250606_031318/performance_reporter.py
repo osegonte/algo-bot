@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 
 class PerformanceReporter:
     def __init__(self, log_path="logs/trades.json"):
@@ -20,7 +20,7 @@ class PerformanceReporter:
         sell_trades = len([t for t in trades if t["side"] == "sell"])
         
         report = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.utcnow().isoformat(),
             "total_trades": total_trades,
             "buy_trades": buy_trades,
             "sell_trades": sell_trades,

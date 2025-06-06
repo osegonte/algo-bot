@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 import json
 import os
 import alpaca_trade_api as tradeapi
@@ -20,7 +20,7 @@ class TradingEngine:
             "side": order.side,
             "status": order.status,
             "filled_at": order.filled_at,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.utcnow().isoformat()
         }
         os.makedirs("logs", exist_ok=True)
         with open("logs/trades.json", "a") as f:

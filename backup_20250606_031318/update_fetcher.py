@@ -3,7 +3,7 @@ import json
 import hashlib
 import os
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 
 PARENT_CFG_DIR = Path("../parent_bot/config")
 LOCAL_CFG_DIR = Path("config")
@@ -82,7 +82,7 @@ class UpdateFetcher:
         confidence = config_data.get("confidence", 0)
         
         log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "child_id": self.child_id,
             "action": "config_update",
             "config_updated": True,  # Level 3 requirement
@@ -100,7 +100,7 @@ class UpdateFetcher:
     def _log_config_error(self, error_msg):
         """Log configuration update errors"""
         log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "child_id": self.child_id,
             "action": "config_update",
             "config_updated": False,

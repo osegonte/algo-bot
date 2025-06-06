@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 
 def score_logs(log_path: Path):
     """Original simple scoring function"""
@@ -77,7 +77,7 @@ def score_strategies():
             "avg_win": round(avg_win, 2),
             "avg_loss": round(avg_loss, 2),
             "score": round(score, 2),
-            "last_updated": datetime.now(timezone.utc).isoformat()
+            "last_updated": datetime.utcnow().isoformat()
         })
     
     # Create DataFrame and sort by score
@@ -150,7 +150,7 @@ def save_strategy_scores(df):
     scores_file = log_path / "strategy_scores.json"
     
     scores_data = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.utcnow().isoformat(),
         "scores": df.to_dict('records')
     }
     

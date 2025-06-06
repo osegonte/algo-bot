@@ -1,7 +1,7 @@
 import random
 import yaml
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 class StrategyRecommender:
@@ -51,7 +51,7 @@ class StrategyRecommender:
             "ai_settings": ai_config,
             "strategy": strategy_config,
             "risk": risk_config,
-            "updated": datetime.now(timezone.utc).isoformat(),
+            "updated": datetime.utcnow().isoformat(),
             "generated_by": "strategy_recommender",
             "confidence": round(confidence, 3),
             "market_conditions": market_conditions or {}
@@ -201,7 +201,7 @@ class StrategyRecommender:
     def _log_config_updates(self, updated_configs):
         """Log configuration updates"""
         log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "action": "config_update",
             "updated_children": list(updated_configs.keys()),
             "strategies": {child_id: config["strategy"]["default"] 

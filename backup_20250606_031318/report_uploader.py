@@ -2,7 +2,7 @@ import shutil
 import json
 import time
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 import threading
 
 CHILD_LOG_DIR = Path("logs")
@@ -51,7 +51,7 @@ class ReportUploader:
             
             # Log sync status
             sync_status = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "action": "push_logs",
                 "uploaded_files": uploaded_files,
                 "skipped_files": skipped_files,
@@ -60,7 +60,7 @@ class ReportUploader:
             }
             
             self._log_sync_status(sync_status)
-            self.last_sync = datetime.now(timezone.utc)
+            self.last_sync = datetime.utcnow()
             
             if uploaded_files:
                 print(f"📤 Uploaded {len(uploaded_files)} files: {', '.join(uploaded_files)}")
@@ -71,7 +71,7 @@ class ReportUploader:
             
         except Exception as e:
             sync_status = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "action": "push_logs",
                 "uploaded_files": [],
                 "skipped_files": [],

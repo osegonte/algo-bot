@@ -1,0 +1,41 @@
+{
+  "generated_at": "2025-06-06T01:13:36.596113+00:00",
+  "scores": [
+    {
+      "strategy": "breakout",
+      "win_rate": 42.6,
+      "profit_factor": 1.98,
+      "sharpe_ratio": 0.845,
+      "net_pnl": 294.22,
+      "num_trades": 47,
+      "avg_win": 29.74,
+      "avg_loss": -11.18,
+      "score": 54.66,
+      "last_updated": "2025-06-06T01:13:36.588719+00:00"
+    },
+    {
+      "strategy": "mean_reversion",
+      "win_rate": 59.9,
+      "profit_factor": 1.16,
+      "sharpe_ratio": 0.656,
+      "net_pnl": 20.55,
+      "num_trades": 29,
+      "avg_win": 8.39,
+      "avg_loss": -10.77,
+      "score": 37.23,
+      "last_updated": "2025-06-06T01:13:36.588731+00:00"
+    },
+    {
+      "strategy": "martingale",
+      "win_rate": 76.2,
+      "profit_factor": 0.46,
+      "sharpe_ratio": 0.492,
+      "net_pnl": -133.47,
+      "num_trades": 21,
+      "avg_win": 7.13,
+      "avg_loss": -49.6,
+      "score": 33.6,
+      "last_updated": "2025-06-06T01:13:36.588703+00:00"
+    }
+  ]
+}

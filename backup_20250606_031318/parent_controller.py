@@ -1,7 +1,7 @@
 import json
 import glob
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 import numpy as np
 
 LOG_PATH = Path("logs")
@@ -182,7 +182,7 @@ class ParentController:
                 'qty': '1',
                 'pnl': round(pnl, 2),
                 'fill_price': round(150 + np.random.normal(0, 2), 2),
-                'timestamp': datetime.now(timezone.utc).isoformat()
+                'timestamp': datetime.utcnow().isoformat()
             }
             simulated_trades.append(trade)
         return simulated_trades
@@ -190,7 +190,7 @@ class ParentController:
     def _save_summary(self, kpi_data):
         """Save KPI summary to JSON file"""
         summary = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.utcnow().isoformat(),
             "kpis": kpi_data,
             "metadata": {
                 "total_raw_trades": len(self.logs),
@@ -199,7 +199,7 @@ class ParentController:
         }
         
         # Create filename with date
-        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+        date_str = datetime.utcnow().strftime("%Y%m%d")
         summary_file = LOG_PATH / f"parent_summary_{date_str}.json"
         
         with open(summary_file, 'w') as f:

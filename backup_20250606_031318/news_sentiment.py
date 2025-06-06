@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime, timezone
+from datetime import datetime
 
 class NewsSentimentAnalyzer:
     def __init__(self, api_key=None):
@@ -13,7 +13,7 @@ class NewsSentimentAnalyzer:
             "symbol": symbol,
             "sentiment": random.choice(sentiments),
             "confidence": random.uniform(0.5, 0.9),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.utcnow().isoformat()
         }
         
     def should_trade_based_on_sentiment(self, symbol, threshold=0.7):

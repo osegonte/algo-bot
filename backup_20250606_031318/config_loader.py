@@ -1,7 +1,7 @@
 import os
 import yaml
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 class ConfigLoader:
@@ -60,7 +60,7 @@ class ConfigLoader:
     def _log_config_load(self):
         """Log successful config loading"""
         log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "child_id": self.child_id,
             "config_loaded": self.config_loaded,
             "ai_config_exists": self.ai_config is not None,
