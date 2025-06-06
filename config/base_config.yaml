@@ -1,6 +1,11 @@
 alpaca:
-  api_key: "YOUR_ALPACA_KEY"
-  api_secret: "YOUR_ALPACA_SECRET"
+  api_key: "PKKJRF8U4QTYWMAVLYUI"  
+  api_secret: "4kGChcW8cqkxasJfvyVMYfGRKbPqwNcx8MzM26ws"  
   base_url: "https://paper-api.alpaca.markets"
 logging:
   dir: "logs"
+
+alerts:
+  telegram_token: "7817371175:AAEj3sTViuC8il4JqwEURentgyr2rq5ESCQ"  # Get from @BotFather
+  telegram_chat_id: "7817371175"          # Your Telegram user ID
+  slack_webhook: "YOUR_SLACK_WEBHOOK_URL"   # Optional

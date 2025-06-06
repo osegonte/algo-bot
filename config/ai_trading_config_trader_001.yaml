@@ -2,6 +2,14 @@ ai_settings:
   model: "deepseek"
   confidence_threshold: 0.7
   max_trades_per_day: 10
+
 strategy:
-  default: "martingale"
+  default: "breakout"
   risk_multiplier: 1.5
+
+risk:
+  max_position_size: 1000
+  max_daily_loss: 500
+  risk_level: "medium"
+
+updated: "2025-06-06T14:00:00Z"
