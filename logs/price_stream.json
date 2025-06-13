@@ -1,2 +1,0 @@
-{"timestamp": "2025-06-06T02:05:03.097462+00:00", "action": "price_stream_status", "price_stream_started": true, "method": "websocket", "symbols": ["AAPL", "EURUSD"]}
-{"timestamp": "2025-06-06T02:05:10.098415+00:00", "action": "price_stream_status", "price_stream_started": false, "method": "stopped", "symbols": ["AAPL", "EURUSD"]}

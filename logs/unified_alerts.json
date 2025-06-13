@@ -1,3 +1,0 @@
-{"timestamp": "2025-06-06T12:54:55.929344+00:00", "title": "Test Alert", "message": "Test message", "level": "INFO", "type": "test", "channels_sent": []}
-{"timestamp": "2025-06-06T21:53:20.068151+00:00", "title": "Test Alert", "message": "Test message", "level": "INFO", "type": "test", "channels_sent": []}
-{"timestamp": "2025-06-06T23:33:20.063664+00:00", "title": "Test Alert", "message": "This is a test alert for Level 8-A", "level": "INFO", "type": "test", "channels_sent": []}

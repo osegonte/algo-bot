@@ -1,8 +1,0 @@
-alerts:
-  slack_webhook: https://example.com/slack
-  telegram_chat_id: test_chat_id
-  telegram_token: test_token
-alpaca:
-  api_key: "PK1OFRO428H1816RL1ZB"
-  api_secret: "KEY=bh6N8csmX4wPSezI6yOTXvQJ2zzMnWM7K7wY9B4y"
-  base_url: "https://paper-api.alpaca.markets"
