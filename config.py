@@ -19,8 +19,8 @@ ALPACA_CONFIG = {
     'secret_key': 'LOulDBLtPY9H3z6TfXMMCzDPTtjBXjI59pxD2So5',  # Add your Alpaca secret key here
     
     # Trading settings
-    'symbol': 'AAPL',  # Stock symbol to trade
-    'quantity': 1,     # Number of shares per trade
+    'symbol': 'XAUUSD',  # Stock symbol to trade
+    'quantity': 0.1      # Number of shares per trade
 }
 
 # =================================================================
