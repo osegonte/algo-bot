@@ -1,42 +1,28 @@
 #!/usr/bin/env python3
 """
-Configuration file for Alpaca Trading Bot
+Simple Configuration for XAU/USD Tick Trading Bot
 """
 
-# =================================================================
-# ALPACA API CONFIGURATION
-# =================================================================
-# To enable real Alpaca trading, get your API keys from:
-# https://app.alpaca.markets/
-# Then update the values below:
-
+# Alpaca API Configuration
 ALPACA_CONFIG = {
-    # Set to False for live trading with real money
     'paper_trading': True,
-    
-    # Your Alpaca API credentials (keep these secure!)
-    'api_key': 'PK43BTKX4DJCXAVB5BIS',  
-    'secret_key': 'LOulDBLtPY9H3z6TfXMMCzDPTtjBXjI59pxD2So5',  # Add your Alpaca secret key here
-    
-    # Trading settings
-    'symbol': 'XAUUSD',  # Stock symbol to trade
-    'quantity': 0.1      # Number of shares per trade
+    'api_key': 'PK43BTKX4DJCXAVB5BIS',
+    'secret_key': 'LOulDBLtPY9H3z6TfXMMCzDPTtjBXjI59pxD2So5',
+    'symbol': 'XAUUSD',
+    'quantity': 0.1
 }
 
-# =================================================================
-# TRADING STRATEGY CONFIGURATION  
-# =================================================================
+# Trading Strategy Settings
 STRATEGY_CONFIG = {
-    'tick_threshold': 0.01,  # 0.01% price movement to trigger entry
-    'profit_target': 0.02,   # 0.02% profit target
-    'stop_loss': 0.01,       # 0.01% stop loss
+    'profit_target_ticks': 4,    # 4 ticks = $0.40 profit target
+    'stop_loss_ticks': 2,        # 2 ticks = $0.20 stop loss
+    'tick_size': 0.10,           # XAU/USD tick size
+    'min_confidence': 0.65       # Minimum signal confidence
 }
 
-# =================================================================
-# BOT SETTINGS
-# =================================================================
+# Bot Settings
 BOT_CONFIG = {
-    'log_level': 'INFO',
-    'log_file': 'trades.csv',
-    'status_update_interval': 30,  # seconds
+    'log_file': 'xauusd_trades.csv',
+    'max_position_time': 60,     # Max 60 seconds in position
+    'status_update_interval': 10, # Status updates every 10 seconds
 }
