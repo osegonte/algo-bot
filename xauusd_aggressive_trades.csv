@@ -1,0 +1,1 @@
+timestamp,symbol,side,quantity,price,trade_id,status,trade_type,profit_loss,profit_loss_ticks,trade_duration,signal_confidence,signal_strength,signal_reasoning,exit_reason,session_pnl,drawdown,win_streak,loss_streak

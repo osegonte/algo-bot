@@ -1,9 +1,0 @@
-2025-06-13 23:41:28,823 - INFO - ✅ Data collector initialized for XAUUSD
-2025-06-13 23:41:28,824 - INFO - ✅ Trading logic initialized - Target: 4 ticks, Stop: 2 ticks
-2025-06-13 23:41:30,361 - INFO - ✅ Alpaca connected - 📄 PAPER mode
-2025-06-13 23:41:30,361 - INFO - 💰 Account balance: $99,964.16
-2025-06-13 23:41:30,362 - INFO - Created new CSV file: xauusd_trades.csv
-2025-06-13 23:41:30,362 - INFO - ✅ Trade logger initialized - File: xauusd_trades.csv
-2025-06-13 23:41:30,363 - INFO - ✅ Simple ML interface initialized
-2025-06-13 23:41:30,363 - WARNING - Alpaca connection failed: module 'alpaca_trade_api' has no attribute 'StreamConn'
-2025-06-13 23:41:30,364 - INFO - 🎮 Simulation started

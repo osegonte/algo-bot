@@ -1,0 +1,35 @@
+2025-06-24 21:44:05,756 - INFO - 🚀 Aggressive XAU/USD Bot Starting...
+2025-06-24 21:44:05,756 - INFO - ✅ Aggressive configuration loaded
+2025-06-24 21:44:05,757 - INFO - ✅ Aggressive trading logic loaded
+2025-06-24 21:44:05,757 - INFO - ✅ Enhanced performance monitor loaded
+2025-06-24 21:44:05,757 - INFO - ✅ Data collector initialized for XAUUSD
+2025-06-24 21:44:05,757 - INFO - ✅ Enhanced aggressive trading logic initialized
+2025-06-24 21:44:05,757 - INFO -    🎯 Target: 8 ticks, Stop: 4 ticks
+2025-06-24 21:44:05,757 - INFO -    🔥 Momentum threshold: 0.0008
+2025-06-24 21:44:05,757 - INFO -    📊 Confidence threshold: 0.75
+2025-06-24 21:44:07,013 - INFO - ✅ Alpaca connected - 📄 PAPER mode
+2025-06-24 21:44:07,013 - INFO - 💰 Account balance: $99,961.51
+2025-06-24 21:44:07,014 - INFO - Created enhanced CSV: xauusd_aggressive_trades.csv
+2025-06-24 21:44:07,015 - INFO - ✅ Aggressive performance monitor initialized
+2025-06-24 21:44:07,015 - INFO -    📊 Trade log: xauusd_aggressive_trades.csv
+2025-06-24 21:44:07,015 - INFO -    📈 Analytics: aggressive_analytics.json
+2025-06-24 21:44:07,015 - INFO - ✅ Enhanced ML interface initialized
+2025-06-24 21:44:07,015 - WARNING - Alpaca connection failed: module 'alpaca_trade_api' has no attribute 'StreamConn'
+2025-06-24 21:44:07,016 - INFO - 🎮 Simulation started
+2025-06-24 22:03:34,047 - INFO - 🚀 Aggressive XAU/USD Bot Starting...
+2025-06-24 22:03:34,047 - INFO - ✅ Aggressive configuration loaded
+2025-06-24 22:03:34,048 - INFO - ✅ Aggressive trading logic loaded
+2025-06-24 22:03:34,048 - INFO - ✅ Enhanced performance monitor loaded
+2025-06-24 22:03:34,048 - INFO - ✅ Data collector initialized for XAUUSD
+2025-06-24 22:03:34,048 - INFO - ✅ Enhanced aggressive trading logic initialized
+2025-06-24 22:03:34,048 - INFO -    🎯 Target: 8 ticks, Stop: 4 ticks
+2025-06-24 22:03:34,048 - INFO -    🔥 Momentum threshold: 0.0006
+2025-06-24 22:03:34,048 - INFO -    📊 Confidence threshold: 0.70
+2025-06-24 22:03:34,522 - INFO - ✅ Alpaca connected - 📄 PAPER mode
+2025-06-24 22:03:34,523 - INFO - 💰 Account balance: $99,959.30
+2025-06-24 22:03:34,523 - INFO - ✅ Aggressive performance monitor initialized
+2025-06-24 22:03:34,523 - INFO -    📊 Trade log: xauusd_aggressive_trades.csv
+2025-06-24 22:03:34,523 - INFO -    📈 Analytics: aggressive_analytics.json
+2025-06-24 22:03:34,523 - INFO - ✅ Enhanced ML interface initialized
+2025-06-24 22:03:34,523 - WARNING - Alpaca connection failed: module 'alpaca_trade_api' has no attribute 'StreamConn'
+2025-06-24 22:03:34,524 - INFO - 🎮 Simulation started
